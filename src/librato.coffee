@@ -103,7 +103,7 @@ graphAllChartsForSpace = (auth, robot, msg, space) ->
       .get() (err, res, body) ->
         switch res.statusCode
           when 200
-            graphCharts(msg, JSON.parse(body))
+            graphCharts(msg, JSON.parse(body), auth, robot)
           else
             msg.reply "Unable to get list of charts for space #{space} from librato :(\nStatus Code: #{res.statusCode}\nBody:\n\n#{body}"
 
@@ -197,7 +197,7 @@ printNames = (msg, key, json) ->
   names = json.reduce (acc, item) -> acc + "\n" + item.name
   msg.reply "I found #{names.length} #{key}\n\n #{names}"
 
-graphNames = (msg, key, json) ->
+graphNames = (msg, key, json, auth, robot) ->
   timePeriod = 'hour'
   source = '*'
   type = 'line'
@@ -207,8 +207,8 @@ graphNames = (msg, key, json) ->
 printCharts = (msg, json) ->
   printNames(msg, 'charts', json)
 
-graphCharts = (msg, json) ->
-  graphNames(msg, 'charts', json)
+graphCharts = (msg, json, auth, robot) ->
+  graphNames(msg, 'charts', json, auth, robot)
 
 
 
