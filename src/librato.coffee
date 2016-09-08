@@ -96,7 +96,7 @@ getAllChartsForSpace = (auth, robot, msg, space) ->
           else
             msg.reply "Unable to get list of charts for space #{space} from librato :(\nStatus Code: #{res.statusCode}\nBody:\n\n#{body}"
 
-graphAllChartsForSpace = (auth, robot, msg) ->
+graphAllChartsForSpace = (auth, robot, msg, space) ->
   url = "https://metrics-api.librato.com/v1/spaces/#{escape(space)}/charts"
   robot.http(url)
       .headers(Authorization: auth, Accept: 'application/json')
