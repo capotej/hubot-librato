@@ -96,14 +96,14 @@ getAllChartsForSpace = (auth, robot, msg, space) ->
           else
             msg.reply "Unable to get list of charts for space #{space} from librato :(\nStatus Code: #{res.statusCode}\nBody:\n\n#{body}"
 
-graphAllChartsForSpace = (auth, robot, msg, space) ->
+graphAllChartsForSpace = (auth, robot, msg) ->
   url = "https://metrics-api.librato.com/v1/spaces/#{escape(space)}/charts"
   robot.http(url)
       .headers(Authorization: auth, Accept: 'application/json')
       .get() (err, res, body) ->
         switch res.statusCode
           when 200
-            graphCharts(msg, JSON.parse(body), space)
+            graphCharts(msg, JSON.parse(body))
           else
             msg.reply "Unable to get list of charts for space #{space} from librato :(\nStatus Code: #{res.statusCode}\nBody:\n\n#{body}"
 
@@ -197,15 +197,18 @@ printNames = (msg, key, json) ->
   names = json.reduce (acc, item) -> acc + "\n" + item.name
   msg.reply "I found #{names.length} #{key}\n\n #{names}"
 
-graphNames = (msg, key, json, space) ->
+graphNames = (msg, key, json) ->
+  timePeriod = 'hour'
+  source = '*'
+  type = 'line'
   for i in json
-    msg.reply "graphing #{i.id} on #{space}"
+    createSnapshotForChart(auth, robot, msg, i.id, source, type, timePeriod)
 
 printCharts = (msg, json) ->
   printNames(msg, 'charts', json)
 
-graphCharts = (msg, json, space) ->
-  graphNames(msg, 'charts', json, space)
+graphCharts = (msg, json) ->
+  graphNames(msg, 'charts', json)
 
 
 
@@ -216,10 +219,7 @@ module.exports = (robot) ->
     user = process.env.HUBOT_LIBRATO_USER
     pass = process.env.HUBOT_LIBRATO_TOKEN
     auth = 'Basic ' + new Buffer(user + ':' + pass).toString('base64')
-    timePeriod = 'hour'
-    source = '*'
-    type = 'line'
-    graphChartsForSpace(auth, robot, msg, space, source, type, timePeriod)
+    graphChartsForSpace(auth, robot, msg, space)
 
   robot.respond /graph spaces/i, (msg) ->
     user = process.env.HUBOT_LIBRATO_USER
