@@ -68,6 +68,23 @@ getChartsForSpace = (auth, robot, msg, space) ->
           else
             msg.reply "Unable to get list of spaces from librato :(\nStatus Code: #{res.statusCode}\nBody:\n\n#{body}"
 
+graphChartsForSpace = (auth, robot, msg, space) ->
+  url = "https://metrics-api.librato.com/v1/spaces?name=#{escape(space)}"
+  robot.http(url)
+      .headers(Authorization: auth, Accept: 'application/json')
+      .get() (err, res, body) ->
+        switch res.statusCode
+          when 200
+            json = JSON.parse(body)
+            found = json['query']['found']
+            if found == 0
+              msg.reply "Sorry, couldn't find any spaces by name #{name}"
+            else
+              id = json['spaces'][0]['id']
+              graphAllChartsForSpace(auth, robot, msg, id)
+          else
+            msg.reply "Unable to get list of spaces from librato :(\nStatus Code: #{res.statusCode}\nBody:\n\n#{body}"
+
 getAllChartsForSpace = (auth, robot, msg, space) ->
   url = "https://metrics-api.librato.com/v1/spaces/#{escape(space)}/charts"
   robot.http(url)
@@ -199,7 +216,7 @@ module.exports = (robot) ->
     user = process.env.HUBOT_LIBRATO_USER
     pass = process.env.HUBOT_LIBRATO_TOKEN
     auth = 'Basic ' + new Buffer(user + ':' + pass).toString('base64')
-    getAllChartsForSpace(auth, robot, msg, space)
+    graphChartsForSpace(auth, robot, msg, space)
 
   robot.respond /graph spaces/i, (msg) ->
     user = process.env.HUBOT_LIBRATO_USER
