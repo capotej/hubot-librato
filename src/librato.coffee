@@ -86,7 +86,7 @@ graphAllChartsForSpace = (auth, robot, msg, space) ->
       .get() (err, res, body) ->
         switch res.statusCode
           when 200
-            graphCharts(msg, JSON.parse(body)
+            graphCharts(msg, JSON.parse(body))
           else
             msg.reply "Unable to get list of charts for space #{spaceId} from librato :(\nStatus Code: #{res.statusCode}\nBody:\n\n#{body}"
 
